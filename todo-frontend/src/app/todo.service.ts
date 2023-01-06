@@ -1,8 +1,12 @@
-import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import {Injectable} from '@angular/core';
+import {HttpClient} from '@angular/common/http';
+import {createTRPCProxyClient, httpBatchLink} from '@trpc/client';
+import {Observable, of} from 'rxjs';
+
+import type {TodosRouter} from '../../../todo-backend/todo/todo.route';
 
 import {CreateAndUpdateTodo, Todo} from "./+state/todo.model";
+import {fromPromise} from "rxjs/internal/observable/innerFrom";
 
 const ENDPOINT = 'http://localhost:3000/todos';
 
@@ -10,24 +14,31 @@ const ENDPOINT = 'http://localhost:3000/todos';
   providedIn: 'root',
 })
 export class TodoService {
-  constructor(private http: HttpClient) {}
+
+  private client = createTRPCProxyClient<TodosRouter>({
+    links: [
+      httpBatchLink({
+        url: 'http://localhost:3000',
+      }),
+    ],
+  });
+
+  constructor(private http: HttpClient) {
+  }
 
   public getAllTodos(): Observable<Todo[]> {
-    return this.http.get<Todo[]>(ENDPOINT);
+    return fromPromise(this.client.todos.query());
   }
 
   public addTodo(todo: CreateAndUpdateTodo): Observable<Todo> {
-    return this.http.post<Todo>(ENDPOINT, todo);
+    return fromPromise(this.client.addTodo.mutate(todo));
   }
 
   public updateTodo(todo: Todo): Observable<Todo> {
-    return this.http.patch<Todo>(`${ENDPOINT}/${todo.id}`, {
-      todo: todo.todo,
-      done: todo.done,
-    });
+    return fromPromise(this.client.updateTodo.mutate(todo));
   }
 
   public deleteTodo(id: number): Observable<Todo> {
-    return this.http.delete<Todo>(`${ENDPOINT}/${id}`);
+    return fromPromise(this.client.deleteTodo.mutate(id));
   }
 }
