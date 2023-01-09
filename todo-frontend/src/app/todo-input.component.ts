@@ -7,7 +7,7 @@ import { addTodo } from './+state/todo.actions';
 @Component({
   selector: 'todo-input',
   template: `
-    <form [formGroup]="todoForm" class="bg-white shadow-md rounded p-8 mb-4">
+    <form [formGroup]="todoForm" class="bg-white shadow-lg rounded p-10 mb-4">
       <div class="relative">
         <input
           type="text"

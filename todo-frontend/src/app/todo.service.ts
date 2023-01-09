@@ -1,7 +1,6 @@
 import {Injectable} from '@angular/core';
-import {HttpClient} from '@angular/common/http';
 import {createTRPCProxyClient, httpBatchLink} from '@trpc/client';
-import {Observable, of} from 'rxjs';
+import {Observable} from 'rxjs';
 
 import type {TodosRouter} from '../../../todo-backend/todo/todo.route';
 
@@ -22,9 +21,6 @@ export class TodoService {
       }),
     ],
   });
-
-  constructor(private http: HttpClient) {
-  }
 
   public getAllTodos(): Observable<Todo[]> {
     return fromPromise(this.client.todos.query());

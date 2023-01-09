@@ -49,11 +49,8 @@ export const todosRouter = router({
         )
         .mutation(({input}) => {
             todos = todos.map((t) =>
-                t.id === id
-                    ? {
-                        ...input,
-                        id,
-                    }
+                t.id === input.id
+                    ? input
                     : t,
             );
             return input;
